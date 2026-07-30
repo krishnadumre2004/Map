@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Turf.js for Centroid and Spatial Calculations -->
+    <!-- Turf.js for Centroid Calculations -->
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -35,7 +35,7 @@
     <!-- Main Container -->
     <div class="app-container">
         
-        <!-- Sidebar Navigation & Control Panel -->
+        <!-- Sidebar Controls -->
         <aside id="sidebar" class="sidebar">
             <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle Sidebar">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -59,37 +59,59 @@
                 <section class="panel-section">
                     <div class="section-title">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>Search Spatial Entities</span>
+                        <span id="search-section-label">Search Spatial Entities</span>
                     </div>
                     <div class="search-box">
-                        <input type="text" id="search-input" placeholder="Search Province, District, Municipality..." autocomplete="off">
+                        <input type="text" id="search-input" placeholder="Search District..." autocomplete="off">
                         <i class="fa-solid fa-xmark clear-btn" id="search-clear"></i>
                     </div>
                     <ul id="search-results" class="search-results-list"></ul>
                 </section>
 
-                <!-- Administrative Layer Control -->
+                <!-- Administrative Layer Control (Radio - One at a Time) -->
                 <section class="panel-section">
                     <div class="section-title">
                         <i class="fa-solid fa-layer-group"></i>
-                        <span>Administrative Layers</span>
+                        <span>Active Boundary Layer</span>
                     </div>
                     <div class="control-group">
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-province" checked>
+                            <input type="radio" name="admin-layer" value="province">
                             <span class="control-indicator province-indicator"></span>
                             <span class="control-label">Provinces</span>
                         </label>
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-district" checked>
+                            <input type="radio" name="admin-layer" value="district" checked>
                             <span class="control-indicator district-indicator"></span>
                             <span class="control-label">Districts</span>
                         </label>
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-municipality">
+                            <input type="radio" name="admin-layer" value="municipality">
                             <span class="control-indicator municipality-indicator"></span>
                             <span class="control-label">Municipalities</span>
                         </label>
+                    </div>
+                </section>
+
+                <!-- Dynamic Label Configuration Panel -->
+                <section class="panel-section">
+                    <div class="section-title">
+                        <i class="fa-solid fa-tags"></i>
+                        <span>Label Customization</span>
+                    </div>
+                    <div class="control-group">
+                        <label class="toggle-control">
+                            <input type="checkbox" id="label-visibility-toggle" checked>
+                            <span class="control-label">Show Map Labels</span>
+                        </label>
+                        <div class="label-attribute-wrapper" style="margin-top: 8px;">
+                            <label for="label-attribute-select" style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Display Attribute:</label>
+                            <select id="label-attribute-select" class="custom-select">
+                                <option value="NAME">Name / Title</option>
+                                <option value="CODE">ID / Code</option>
+                                <option value="AREA">Area Value</option>
+                            </select>
+                        </div>
                     </div>
                 </section>
 
@@ -115,18 +137,18 @@
                         <span>Map Legend</span>
                     </div>
                     <div id="legend-content" class="legend-box">
-                        <!-- Populated dynamically via script -->
+                        <!-- Populated dynamically -->
                     </div>
                 </section>
 
-                <!-- Info Panel -->
+                <!-- Information Panel -->
                 <section class="panel-section info-section" id="info-section">
                     <div class="section-title">
                         <i class="fa-solid fa-circle-info"></i>
                         <span>Feature Attributes</span>
                     </div>
                     <div id="info-content" class="info-box">
-                        <p class="placeholder-text">Click on any feature on the map to inspect properties.</p>
+                        <p class="placeholder-text">Click on any region on the map to inspect properties.</p>
                     </div>
                 </section>
             </div>
@@ -136,19 +158,20 @@
         <main id="map-wrapper" class="map-wrapper">
             <div id="map"></div>
 
-            <!-- On-Map Floating Map Controls -->
+            <!-- Top-Right Controls Container including Upward North Arrow -->
             <div class="map-controls-top-right">
-                <button id="btn-reset-view" class="map-btn" title="Reset View to Full Nepal Extent">
+                <!-- Upward Pointing North Arrow Widget -->
+                <div class="north-arrow-card" title="North Direction">
+                    <i class="fa-solid fa-arrow-up-long north-arrow-icon"></i>
+                    <span class="north-arrow-label">N</span>
+                </div>
+
+                <button id="btn-reset-view" class="map-btn" title="Reset View to Full Extent">
                     <i class="fa-solid fa-house"></i>
                 </button>
-                <button id="btn-locate" class="map-btn" title="Fit Bounds to Active Features">
+                <button id="btn-locate" class="map-btn" title="Fit Bounds to Active Layer">
                     <i class="fa-solid fa-expand"></i>
                 </button>
-            </div>
-
-            <!-- North Arrow Indicator -->
-            <div class="north-arrow-container" title="North Direction">
-                <div class="north-arrow">N</div>
             </div>
 
             <!-- Status Bar -->
