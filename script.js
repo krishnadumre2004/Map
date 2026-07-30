@@ -148,15 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Fetch All Administrative GeoJSON Layers Parallelly
                 statusText.innerText = "Fetching Provinces GeoJSON...";
-                const resProv = await fetch('PROVINCE.geojson');
+                const resProv = await fetch('PROVINCE.json');
                 const provData = await resProv.json();
 
                 statusText.innerText = "Fetching Districts GeoJSON...";
-                const resDist = await fetch('DISTRICT.geojson');
+                const resDist = await fetch('DISTRICT.json');
                 const distData = await resDist.json();
 
                 statusText.innerText = "Fetching Municipalities GeoJSON...";
-                const resMuni = await fetch('MUNICIPALITY.geojson');
+                const resMuni = await fetch('MUNICIPALITY.json');
                 const muniData = await resMuni.json();
 
                 // Save Reference
