@@ -1,17 +1,15 @@
-/* Variable Definitions for Light and Dark Themes */
+/* Color Variable Definitions */
 :root {
     --bg-primary: #f8fafc;
-    --bg-surface: rgba(255, 255, 255, 0.85);
-    --bg-card: rgba(255, 255, 255, 0.65);
+    --bg-surface: rgba(255, 255, 255, 0.88);
+    --bg-card: rgba(255, 255, 255, 0.70);
     --text-primary: #0f172a;
     --text-secondary: #475569;
-    --border-color: rgba(226, 232, 240, 0.8);
+    --border-color: rgba(226, 232, 240, 0.85);
     --accent-color: #2563eb;
-    --accent-hover: #1d4ed8;
     --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
     --glass-blur: blur(12px);
     
-    /* Layer Visual Colors */
     --color-province: #2563eb;
     --color-district: #059669;
     --color-municipality: #ea580c;
@@ -19,13 +17,12 @@
 
 body.dark-theme {
     --bg-primary: #0f172a;
-    --bg-surface: rgba(30, 41, 59, 0.85);
-    --bg-card: rgba(15, 23, 42, 0.65);
+    --bg-surface: rgba(30, 41, 59, 0.88);
+    --bg-card: rgba(15, 23, 42, 0.70);
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
-    --border-color: rgba(51, 65, 85, 0.8);
+    --border-color: rgba(51, 65, 85, 0.85);
     --accent-color: #3b82f6;
-    --accent-hover: #60a5fa;
     --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     
     --color-province: #60a5fa;
@@ -33,7 +30,7 @@ body.dark-theme {
     --color-municipality: #fb923c;
 }
 
-/* Base Styles */
+/* Base Setup */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -82,8 +79,8 @@ body, html {
 }
 
 .spinner {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-left-color: var(--accent-color);
     border-radius: 50%;
@@ -95,7 +92,7 @@ body, html {
     to { transform: rotate(360deg); }
 }
 
-/* Sidebar Styling with Glassmorphism */
+/* Sidebar Glassmorphism */
 .sidebar {
     width: 360px;
     height: 100%;
@@ -131,7 +128,6 @@ body, html {
     align-items: center;
     justify-content: center;
     box-shadow: 4px 0 8px rgba(0, 0, 0, 0.05);
-    transition: background 0.2s ease, transform 0.3s ease;
 }
 
 .sidebar.collapsed .sidebar-toggle-btn i {
@@ -175,12 +171,6 @@ body, html {
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
-    transition: background 0.2s, color 0.2s;
-}
-
-.icon-btn:hover {
-    background: var(--border-color);
-    color: var(--text-primary);
 }
 
 .sidebar-content {
@@ -189,10 +179,9 @@ body, html {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
-/* Section Components */
 .panel-section {
     background: var(--bg-card);
     padding: 14px;
@@ -207,12 +196,11 @@ body, html {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
-/* Search Bar */
+/* Search Box */
 .search-box {
     position: relative;
 }
@@ -226,11 +214,6 @@ body, html {
     color: var(--text-primary);
     outline: none;
     font-size: 0.9rem;
-    transition: border-color 0.2s ease;
-}
-
-.search-box input:focus {
-    border-color: var(--accent-color);
 }
 
 .search-box .clear-btn {
@@ -265,32 +248,14 @@ body, html {
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.search-results-list li:last-child {
-    border-bottom: none;
-}
-
-.search-results-list li:hover, .search-results-list li.selected {
+.search-results-list li:hover {
     background: var(--accent-color);
     color: #fff;
 }
 
-.search-results-list .type-badge {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: var(--border-color);
-    color: var(--text-secondary);
-}
-
-.search-results-list li:hover .type-badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-
-/* Layer Controls */
+/* Controls & Selects */
 .control-group {
     display: flex;
     flex-direction: column;
@@ -305,7 +270,8 @@ body, html {
     font-size: 0.9rem;
 }
 
-.toggle-control input {
+.toggle-control input[type="radio"],
+.toggle-control input[type="checkbox"] {
     accent-color: var(--accent-color);
     width: 16px;
     height: 16px;
@@ -323,7 +289,6 @@ body, html {
 .district-indicator { background: var(--color-district); }
 .municipality-indicator { background: var(--color-municipality); }
 
-/* Custom Dropdown */
 .custom-select {
     width: 100%;
     padding: 10px;
@@ -333,33 +298,20 @@ body, html {
     color: var(--text-primary);
     outline: none;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
 
-/* Dynamic Legend */
 .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
-    margin-bottom: 6px;
 }
 
 .legend-color {
     width: 18px;
     height: 12px;
     border-radius: 2px;
-    border: 1px solid rgba(0,0,0,0.2);
-}
-
-/* Information Panel */
-.info-box {
-    font-size: 0.85rem;
-}
-
-.placeholder-text {
-    color: var(--text-secondary);
-    font-style: italic;
 }
 
 .info-table {
@@ -368,16 +320,11 @@ body, html {
 }
 
 .info-table td {
-    padding: 6px 0;
+    padding: 5px 0;
     border-bottom: 1px solid var(--border-color);
 }
 
-.info-table td:first-child {
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-/* Map Area */
+/* Map Wrapper */
 .map-wrapper {
     flex: 1;
     height: 100%;
@@ -387,10 +334,9 @@ body, html {
 #map {
     width: 100%;
     height: 100%;
-    z-index: 1;
 }
 
-/* Map Action Buttons */
+/* Upward North Arrow and Controls Positioned at TOP-RIGHT */
 .map-controls-top-right {
     position: absolute;
     top: 20px;
@@ -398,12 +344,41 @@ body, html {
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
+}
+
+.north-arrow-card {
+    width: 40px;
+    height: 48px;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
+
+.north-arrow-icon {
+    font-size: 1.2rem;
+    color: #ef4444; /* Standard Red North Arrow */
+    transform: translateY(2px);
+}
+
+.north-arrow-label {
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-top: 2px;
 }
 
 .map-btn {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     background: var(--bg-surface);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-color);
@@ -415,37 +390,11 @@ body, html {
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    transition: background 0.2s ease, transform 0.2s ease;
+    transition: transform 0.2s ease;
 }
 
 .map-btn:hover {
-    background: var(--bg-primary);
     transform: scale(1.05);
-}
-
-/* North Arrow */
-.north-arrow-container {
-    position: absolute;
-    bottom: 40px;
-    right: 20px;
-    z-index: 1000;
-    width: 36px;
-    height: 36px;
-    background: var(--bg-surface);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow);
-    pointer-events: none;
-}
-
-.north-arrow {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #ef4444;
 }
 
 /* Map Status Bar */
@@ -467,35 +416,19 @@ body, html {
     color: var(--text-secondary);
 }
 
-/* Leaflet Labels Engine Styling */
+/* Center Centroid Labels Styling */
 .map-label {
     background: transparent;
     border: none;
     box-shadow: none;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 11px;
     color: var(--text-primary);
     text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
     white-space: nowrap;
-    transition: opacity 0.3s ease;
+    text-align: center;
 }
 
 body.dark-theme .map-label {
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        z-index: 3000;
-        width: 280px;
-    }
-
-    .sidebar.collapsed {
-        transform: translateX(-280px);
-    }
 }
