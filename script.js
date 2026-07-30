@@ -155,7 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resDist = await fetch('DISTRICT.json');
                 const distData = await resDist.json();
 
-                
+                statusText.innerText = "Fetching Municipalities GeoJSON...";
+                const resMuni = await fetch('MUNICIPALITY.json');
+                const muniData = await resMuni.json();
 
                 // Save Reference
                 this.rawGeoData = { province: provData, district: distData, municipality: muniData };
