@@ -1,36 +1,74 @@
 /**
- * GeoNepal GIS Portal Engine
- * Implements Single Active Administrative Layer Control with Centroid Labels,
- * Custom Label Options, and Positioned Controls.
+ * GeoNepal GIS - Professional Interactive Web GIS Portal
+ * Modular Architecture using ES6+ standards and Leaflet.js
  */
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const GISApp = {
+        // App State
         map: null,
         geoJsonLayers: {},
         labelLayers: {},
         rawGeoData: {},
-        activeLayerKey: 'district', // Default active layer
         activeBaseMap: null,
         searchIndex: [],
 
-        // Styling Configurations
+        // Layer Style Configurations
         styles: {
-            province: { color: '#1d4ed8', weight: 2, opacity: 0.9, fillColor: '#3b82f6', fillOpacity: 0.25 },
-            district: { color: '#047857', weight: 1.5, opacity: 0.8, fillColor: '#10b981', fillOpacity: 0.2 },
-            municipality: { color: '#c2410c', weight: 1, opacity: 0.7, fillColor: '#f97316', fillOpacity: 0.15 },
-            hover: { weight: 3.5, color: '#f59e0b', fillOpacity: 0.5 }
+            province: {
+                color: '#1d4ed8',
+                weight: 2,
+                opacity: 0.9,
+                fillColor: '#3b82f6',
+                fillOpacity: 0.25
+            },
+            district: {
+                color: '#047857',
+                weight: 1.5,
+                opacity: 0.8,
+                fillColor: '#10b981',
+                fillOpacity: 0.2
+            },
+            municipality: {
+                color: '#c2410c',
+                weight: 1,
+                opacity: 0.7,
+                fillColor: '#f97316',
+                fillOpacity: 0.15
+            },
+            hover: {
+                weight: 3.5,
+                color: '#f59e0b',
+                fillOpacity: 0.5
+            }
         },
 
-        // Base Tiles
+        // Tile Providers
         baseMaps: {
-            cartoPositron: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }),
-            cartoDark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }),
-            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
-            esriWorld: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
-            openTopo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 })
+            cartoPositron: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }),
+            cartoDark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }),
+            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }),
+            esriWorld: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 18,
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }),
+            openTopo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap'
+            })
         },
 
+        // Initialization
         init() {
             this.initTheme();
             this.initMap();
@@ -38,21 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
             this.loadGeoJSONData();
         },
 
+        // Local Storage Theme Persistence
         initTheme() {
             const savedTheme = localStorage.getItem('gis_theme') || 'light';
             if (savedTheme === 'dark') {
                 document.body.classList.remove('light-theme');
                 document.body.classList.add('dark-theme');
-                document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
+                const themeIcon = document.querySelector('#theme-toggle i');
+                themeIcon.className = 'fa-solid fa-sun';
             }
         },
 
         toggleTheme() {
             const isDark = document.body.classList.toggle('dark-theme');
             document.body.classList.toggle('light-theme', !isDark);
-            document.querySelector('#theme-toggle i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            
+            const themeIcon = document.querySelector('#theme-toggle i');
+            themeIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            
             localStorage.setItem('gis_theme', isDark ? 'dark' : 'light');
 
+            // Switch to optimal base map automatically if on Carto basemaps
             if (isDark && this.map.hasLayer(this.baseMaps.cartoPositron)) {
                 this.switchBaseMap('cartoDark');
                 document.getElementById('basemap-select').value = 'cartoDark';
@@ -62,17 +106,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
 
+        // Map Setup
         initMap() {
-            this.map = L.map('map', { center: [28.3949, 84.1240], zoom: 7, zoomControl: false });
+            // Centered on Nepal
+            this.map = L.map('map', {
+                center: [28.3949, 84.1240],
+                zoom: 7,
+                zoomControl: false
+            });
+
+            // Add Default Tile Layer
             const initialBasemap = document.body.classList.contains('dark-theme') ? 'cartoDark' : 'cartoPositron';
             this.activeBaseMap = this.baseMaps[initialBasemap].addTo(this.map);
+            document.getElementById('basemap-select').value = initialBasemap;
 
+            // Add Leaflet Zoom Control to Top Right
             L.control.zoom({ position: 'topright' }).addTo(this.map);
 
-            this.labelLayers.province = L.layerGroup();
-            this.labelLayers.district = L.layerGroup();
-            this.labelLayers.municipality = L.layerGroup();
+            // Create Layer Groups for Management
+            this.labelLayers.province = L.layerGroup().addTo(this.map);
+            this.labelLayers.district = L.layerGroup().addTo(this.map);
+            this.labelLayers.municipality = L.layerGroup().addTo(this.map);
 
+            // Register Mouse Tracking Events
             this.map.on('mousemove', (e) => {
                 document.getElementById('mouse-coordinates').innerText = 
                     `Lat: ${e.latlng.lat.toFixed(5)} | Lng: ${e.latlng.lng.toFixed(5)}`;
@@ -80,205 +136,145 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.map.on('zoomend', () => {
                 document.getElementById('active-zoom').innerText = `Zoom: ${this.map.getZoom()}`;
+                this.handleLabelVisibilityOnZoom();
             });
+
+            document.getElementById('active-zoom').innerText = `Zoom: ${this.map.getZoom()}`;
         },
 
+        // Async Data Ingestion
         async loadGeoJSONData() {
             const statusText = document.getElementById('loading-status');
+            
             try {
-                statusText.innerText = "Loading Provinces...";
+                // Fetch All Administrative GeoJSON Layers Parallelly
+                statusText.innerText = "Fetching Provinces GeoJSON...";
                 const resProv = await fetch('PROVINCE.json');
                 const provData = await resProv.json();
 
-                statusText.innerText = "Loading Districts...";
+                statusText.innerText = "Fetching Districts GeoJSON...";
                 const resDist = await fetch('DISTRICT.json');
                 const distData = await resDist.json();
 
-                statusText.innerText = "Loading Municipalities...";
+                statusText.innerText = "Fetching Municipalities GeoJSON...";
                 const resMuni = await fetch('MUNICIPALITY.json');
                 const muniData = await resMuni.json();
 
+                // Save Reference
                 this.rawGeoData = { province: provData, district: distData, municipality: muniData };
 
-                // Ingest Layers
-                this.renderGeoJsonLayer('province', provData, this.styles.province);
-                this.renderGeoJsonLayer('district', distData, this.styles.district);
-                this.renderGeoJsonLayer('municipality', muniData, this.styles.municipality);
+                // Process and Render Layers
+                statusText.innerText = "Rendering Administrative Layers...";
+                this.renderGeoJsonLayer('municipality', muniData, this.styles.municipality, 1);
+                this.renderGeoJsonLayer('district', distData, this.styles.district, 2);
+                this.renderGeoJsonLayer('province', provData, this.styles.province, 3);
 
-                // Set Default Single Active Layer
-                this.setActiveAdministrativeLayer('district');
+                // Build Unified Search Index
+                this.buildSearchIndex();
 
+                // Update Legend Interface
+                this.updateLegend();
+
+                // Hide Loading Screen
                 document.getElementById('loading-screen').classList.add('hidden');
-            } catch (err) {
-                console.error("Error loading spatial layers:", err);
-                statusText.innerHTML = `<span style="color:#ef4444;">Error loading GeoJSON files. Execute via local HTTP Server.</span>`;
+
+            } catch (error) {
+                console.error("GIS Data Load Error:", error);
+                statusText.innerHTML = `<span style="color: #ef4444;">Error loading GeoJSON files. Ensure local server execution.</span>`;
             }
         },
 
-        renderGeoJsonLayer(key, geoJson, style) {
+        // Generic GeoJSON Parser and Layer Engine
+        renderGeoJsonLayer(key, geoJson, defaultStyle, zIndex) {
             const layer = L.geoJSON(geoJson, {
-                style: () => style,
+                style: () => defaultStyle,
                 onEachFeature: (feature, featureLayer) => {
-                    const name = this.extractFeatureAttribute(feature.properties, 'NAME');
+                    // Extract Name dynamically depending on attribute variations
+                    const props = feature.properties;
+                    const name = props.PR_NAME || props.DISTRICT || props.GaPa_Na || props.FIRST_NAME || props.NAME || "Unknown Region";
                     
-                    featureLayer.bindTooltip(name, { sticky: true, direction: 'top' });
+                    // Attach Tooltip
+                    featureLayer.bindTooltip(name, {
+                        sticky: true,
+                        direction: 'top',
+                        className: 'custom-tooltip'
+                    });
 
+                    // Mouse Interaction Events
                     featureLayer.on({
-                        mouseover: (e) => e.target.setStyle(this.styles.hover),
-                        mouseout: (e) => layer.resetStyle(e.target),
-                        click: (e) => this.selectFeature(e, feature.properties, key)
+                        mouseover: (e) => this.highlightFeature(e),
+                        mouseout: (e) => this.resetHighlight(e, layer, defaultStyle),
+                        click: (e) => this.selectFeature(e, props, key)
                     });
+
+                    // Generate Dynamic Polygon Centroid Labels
+                    this.createCentroidLabel(feature, name, key);
                 }
             });
 
+            // Maintain Layer Order Hierarchy
             this.geoJsonLayers[key] = layer;
-        },
-
-        // Helper to resolve property variations
-        extractFeatureAttribute(props, attrType) {
-            if (attrType === 'NAME') {
-                return props.PR_NAME || props.DISTRICT || props.GaPa_Na || props.FIRST_NAME || props.NAME || "Unknown";
-            } else if (attrType === 'CODE') {
-                return props.PROVINCE || props.DIST_ID || props.OBJECTID || props.CODE || "N/A";
-            } else if (attrType === 'AREA') {
-                return props.AREA || props.Shape_Area || props.Area_sqkm || "N/A";
-            }
-            return "N/A";
-        },
-
-        // Center Labels Generator
-        generateCenterLabels(key) {
-            this.labelLayers[key].clearLayers();
-            const showLabels = document.getElementById('label-visibility-toggle').checked;
-            if (!showLabels || !this.rawGeoData[key]) return;
-
-            const selectedAttr = document.getElementById('label-attribute-select').value;
-
-            this.rawGeoData[key].features.forEach(feature => {
-                const labelText = this.extractFeatureAttribute(feature.properties, selectedAttr);
-                
-                try {
-                    const centroid = turf.centroid(feature);
-                    const coords = centroid.geometry.coordinates;
-
-                    const labelMarker = L.marker([coords[1], coords[0]], {
-                        icon: L.divIcon({
-                            className: `map-label`,
-                            html: `<span>${labelText}</span>`,
-                            iconSize: [120, 20],
-                            iconAnchor: [60, 10]
-                        }),
-                        interactive: false
-                    });
-                    this.labelLayers[key].addLayer(labelMarker);
-                } catch (e) {
-                    const bbox = L.geoJSON(feature).getBounds();
-                    const center = bbox.getCenter();
-                    const labelMarker = L.marker(center, {
-                        icon: L.divIcon({
-                            className: `map-label`,
-                            html: `<span>${labelText}</span>`,
-                            iconSize: [120, 20],
-                            iconAnchor: [60, 10]
-                        }),
-                        interactive: false
-                    });
-                    this.labelLayers[key].addLayer(labelMarker);
-                }
-            });
-        },
-
-        // Radio Layer Switching Logic
-        setActiveAdministrativeLayer(key) {
-            // Remove current layers from map
-            ['province', 'district', 'municipality'].forEach(k => {
-                if (this.geoJsonLayers[k]) this.map.removeLayer(this.geoJsonLayers[k]);
-                if (this.labelLayers[k]) this.map.removeLayer(this.labelLayers[k]);
-            });
-
-            this.activeLayerKey = key;
-
-            // Add selected layer
-            if (this.geoJsonLayers[key]) {
-                this.geoJsonLayers[key].addTo(this.map);
-            }
-
-            // Generate Centroid Labels
-            this.generateCenterLabels(key);
-            if (this.labelLayers[key]) {
-                this.labelLayers[key].addTo(this.map);
-            }
-
-            // Update Search UI Context
-            this.updateSearchContext(key);
-
-            // Rebuild Search Index for active layer
-            this.buildSearchIndex(key);
-
-            // Update Dynamic Legend
-            this.updateLegend(key);
-        },
-
-        updateSearchContext(key) {
-            const capitalKey = key.charAt(0).toUpperCase() + key.slice(1);
-            document.getElementById('search-input').placeholder = `Search ${capitalKey}...`;
-            document.getElementById('search-section-label').innerText = `Search ${capitalKey}s`;
             
-            // Clear input
-            document.getElementById('search-input').value = '';
-            document.getElementById('search-results').classList.remove('active');
+            // Set layer visibility according to sidebar checkbox state
+            const isChecked = document.getElementById(`layer-${key}`).checked;
+            if (isChecked) {
+                layer.addTo(this.map);
+            }
         },
 
-        buildSearchIndex(key) {
-            this.searchIndex = [];
-            if (this.rawGeoData[key]) {
-                this.rawGeoData[key].features.forEach(feature => {
-                    const name = this.extractFeatureAttribute(feature.properties, 'NAME');
-                    if (name) {
-                        this.searchIndex.push({ name: name.toString(), feature: feature });
-                    }
+        // Dynamic Polygon Centroid Calculation (via Turf.js integration)
+        createCentroidLabel(feature, labelText, layerKey) {
+            try {
+                const centroid = turf.centroid(feature);
+                const coords = centroid.geometry.coordinates;
+
+                const labelMarker = L.marker([coords[1], coords[0]], {
+                    icon: L.divIcon({
+                        className: `map-label map-label-${layerKey}`,
+                        html: `<span>${labelText}</span>`,
+                        iconSize: [100, 20],
+                        iconAnchor: [50, 10]
+                    }),
+                    interactive: false
                 });
-            }
-        },
 
-        handleSearch(query) {
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '';
-
-            if (!query.trim()) {
-                resultsContainer.classList.remove('active');
-                return;
-            }
-
-            const cleanQuery = query.toLowerCase().trim();
-            const filtered = this.searchIndex.filter(item => 
-                item.name.toLowerCase().includes(cleanQuery)
-            ).slice(0, 10);
-
-            if (filtered.length === 0) {
-                resultsContainer.innerHTML = `<li style="cursor:default; color:var(--text-secondary);">No results found</li>`;
-                resultsContainer.classList.add('active');
-                return;
-            }
-
-            filtered.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${item.name}</span><span class="type-badge">${this.activeLayerKey}</span>`;
-                li.addEventListener('click', () => {
-                    const tempLayer = L.geoJSON(item.feature);
-                    this.map.fitBounds(tempLayer.getBounds(), { padding: [40, 40], maxZoom: 11 });
-                    resultsContainer.classList.remove('active');
-                    document.getElementById('search-input').value = item.name;
+                this.labelLayers[layerKey].addLayer(labelMarker);
+            } catch (err) {
+                // Fallback for simple geometries
+                const bbox = L.geoJSON(feature).getBounds();
+                const center = bbox.getCenter();
+                const labelMarker = L.marker(center, {
+                    icon: L.divIcon({
+                        className: `map-label map-label-${layerKey}`,
+                        html: `<span>${labelText}</span>`,
+                        iconSize: [100, 20],
+                        iconAnchor: [50, 10]
+                    }),
+                    interactive: false
                 });
-                resultsContainer.appendChild(li);
-            });
-
-            resultsContainer.classList.add('active');
+                this.labelLayers[layerKey].addLayer(labelMarker);
+            }
         },
 
+        // Hover Effect Functions
+        highlightFeature(e) {
+            const layer = e.target;
+            layer.setStyle(this.styles.hover);
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+        },
+
+        resetHighlight(e, parentLayer, defaultStyle) {
+            parentLayer.resetStyle(e.target);
+        },
+
+        // Selection and Attribute Popup Handler
         selectFeature(e, properties, layerType) {
-            this.map.fitBounds(e.target.getBounds(), { padding: [50, 50], maxZoom: 12 });
+            const layer = e.target;
+            this.map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 12, animate: true });
 
+            // Render Spatial Properties into Sidebar Box
             const infoContainer = document.getElementById('info-content');
             let rows = '';
 
@@ -294,57 +290,154 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         },
 
+        // Dynamic Search Index Construction
+        buildSearchIndex() {
+            this.searchIndex = [];
+            const layerKeys = ['province', 'district', 'municipality'];
+
+            layerKeys.forEach(key => {
+                if (this.rawGeoData[key]) {
+                    this.rawGeoData[key].features.forEach(feature => {
+                        const props = feature.properties;
+                        const name = props.PR_NAME || props.DISTRICT || props.GaPa_Na || props.FIRST_NAME || props.NAME;
+                        if (name) {
+                            this.searchIndex.push({
+                                name: name.toString(),
+                                type: key,
+                                feature: feature
+                            });
+                        }
+                    });
+                }
+            });
+        },
+
+        // Real-Time Search Handler
+        handleSearch(query) {
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+
+            if (!query.trim()) {
+                resultsContainer.classList.remove('active');
+                return;
+            }
+
+            const cleanQuery = query.toLowerCase().trim();
+            const filtered = this.searchIndex.filter(item => 
+                item.name.toLowerCase().includes(cleanQuery)
+            ).slice(0, 10); // Limit results to top 10
+
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = `<li style="cursor:default; color:var(--text-secondary);">No administrative regions found</li>`;
+                resultsContainer.classList.add('active');
+                return;
+            }
+
+            filtered.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.name}</span>
+                    <span class="type-badge">${item.type}</span>
+                `;
+                li.addEventListener('click', () => {
+                    this.zoomToSearchFeature(item.feature);
+                    resultsContainer.classList.remove('active');
+                    document.getElementById('search-input').value = item.name;
+                });
+                resultsContainer.appendChild(li);
+            });
+
+            resultsContainer.classList.add('active');
+        },
+
+        zoomToSearchFeature(feature) {
+            const tempLayer = L.geoJSON(feature);
+            this.map.fitBounds(tempLayer.getBounds(), { padding: [40, 40], maxZoom: 11 });
+            
+            // Highlight temporarily
+            tempLayer.setStyle(this.styles.hover).addTo(this.map);
+            setTimeout(() => {
+                this.map.removeLayer(tempLayer);
+            }, 2500);
+        },
+
+        // UI Base Map Switcher Engine
         switchBaseMap(key) {
-            if (this.activeBaseMap) this.map.removeLayer(this.activeBaseMap);
+            if (this.activeBaseMap) {
+                this.map.removeLayer(this.activeBaseMap);
+            }
             this.activeBaseMap = this.baseMaps[key].addTo(this.map);
         },
 
-        updateLegend(activeKey) {
-            const legendContainer = document.getElementById('legend-content');
-            const colorMap = {
-                province: 'var(--color-province)',
-                district: 'var(--color-district)',
-                municipality: 'var(--color-municipality)'
-            };
+        // Map Scale Labels Engine Visibility according to Zoom Depth
+        handleLabelVisibilityOnZoom() {
+            const currentZoom = this.map.getZoom();
 
-            const capitalName = activeKey.charAt(0).toUpperCase() + activeKey.slice(1);
-            
-            legendContainer.innerHTML = `
-                <div class="legend-item">
-                    <span class="legend-color" style="background-color: ${colorMap[activeKey]}"></span>
-                    <span>${capitalName} Boundary</span>
-                </div>
-            `;
+            // Municipality Labels visible on higher zooms to avoid clutter
+            if (this.labelLayers.municipality) {
+                if (currentZoom < 10) {
+                    this.map.removeLayer(this.labelLayers.municipality);
+                } else if (document.getElementById('layer-municipality').checked) {
+                    this.map.addLayer(this.labelLayers.municipality);
+                }
+            }
         },
 
+        // Dynamic Map Legend Builder
+        updateLegend() {
+            const legendContainer = document.getElementById('legend-content');
+            legendContainer.innerHTML = '';
+
+            const activeLayers = [
+                { key: 'province', label: 'Provinces', color: 'var(--color-province)' },
+                { key: 'district', label: 'Districts', color: 'var(--color-district)' },
+                { key: 'municipality', label: 'Municipalities', color: 'var(--color-municipality)' }
+            ];
+
+            activeLayers.forEach(layer => {
+                const isChecked = document.getElementById(`layer-${layer.key}`).checked;
+                if (isChecked) {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `
+                        <span class="legend-color" style="background-color: ${layer.color}"></span>
+                        <span>${layer.label}</span>
+                    `;
+                    legendContainer.appendChild(item);
+                }
+            });
+        },
+
+        // UI Event Listeners
         bindUIEvents() {
+            // Theme Toggle
             document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
 
+            // Sidebar Toggle
             document.getElementById('sidebar-toggle').addEventListener('click', () => {
                 document.getElementById('sidebar').classList.toggle('collapsed');
             });
 
+            // Base Map Dropdown
             document.getElementById('basemap-select').addEventListener('change', (e) => {
                 this.switchBaseMap(e.target.value);
             });
 
-            // Single Layer Radio Control
-            document.querySelectorAll('input[name="admin-layer"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    this.setActiveAdministrativeLayer(e.target.value);
+            // Toggle Layer Checkboxes
+            ['province', 'district', 'municipality'].forEach(key => {
+                document.getElementById(`layer-${key}`).addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        this.map.addLayer(this.geoJsonLayers[key]);
+                        this.map.addLayer(this.labelLayers[key]);
+                    } else {
+                        this.map.removeLayer(this.geoJsonLayers[key]);
+                        this.map.removeLayer(this.labelLayers[key]);
+                    }
+                    this.updateLegend();
                 });
             });
 
-            // Dynamic Labels Configurations
-            document.getElementById('label-visibility-toggle').addEventListener('change', () => {
-                this.generateCenterLabels(this.activeLayerKey);
-            });
-
-            document.getElementById('label-attribute-select').addEventListener('change', () => {
-                this.generateCenterLabels(this.activeLayerKey);
-            });
-
-            // Search Bar Input Listeners
+            // Live Search Input Listener with Debounce
             const searchInput = document.getElementById('search-input');
             const searchClear = document.getElementById('search-clear');
 
@@ -365,17 +458,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('search-results').classList.remove('active');
             });
 
+            // Map Control Actions
             document.getElementById('btn-reset-view').addEventListener('click', () => {
                 this.map.setView([28.3949, 84.1240], 7);
             });
 
             document.getElementById('btn-locate').addEventListener('click', () => {
-                if (this.geoJsonLayers[this.activeLayerKey]) {
-                    this.map.fitBounds(this.geoJsonLayers[this.activeLayerKey].getBounds());
+                if (this.geoJsonLayers.province) {
+                    this.map.fitBounds(this.geoJsonLayers.province.getBounds());
                 }
             });
         }
     };
 
+    // Initialize GIS Portal
     GISApp.init();
 });
