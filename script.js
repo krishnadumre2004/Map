@@ -87,15 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusText = document.getElementById('loading-status');
             try {
                 statusText.innerText = "Loading Provinces...";
-                const resProv = await fetch('PROVINCE.geojson');
+                const resProv = await fetch('PROVINCE.json');
                 const provData = await resProv.json();
 
                 statusText.innerText = "Loading Districts...";
-                const resDist = await fetch('DISTRICT.geojson');
+                const resDist = await fetch('DISTRICT.json');
                 const distData = await resDist.json();
 
                 statusText.innerText = "Loading Municipalities...";
-                const resMuni = await fetch('MUNICIPALITY.geojson');
+                const resMuni = await fetch('MUNICIPALITY.json');
                 const muniData = await resMuni.json();
 
                 this.rawGeoData = { province: provData, district: distData, municipality: muniData };
