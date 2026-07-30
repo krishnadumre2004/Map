@@ -62,34 +62,54 @@
                         <span>Search Spatial Entities</span>
                     </div>
                     <div class="search-box">
-                        <input type="text" id="search-input" placeholder="Search Province, District, Municipality..." autocomplete="off">
+                        <input type="text" id="search-input" placeholder="Search Province..." autocomplete="off">
                         <i class="fa-solid fa-xmark clear-btn" id="search-clear"></i>
                     </div>
                     <ul id="search-results" class="search-results-list"></ul>
                 </section>
 
-                <!-- Administrative Layer Control -->
+                <!-- Administrative Layer Control (Radio Buttons: One Layer at a Time) -->
                 <section class="panel-section">
                     <div class="section-title">
                         <i class="fa-solid fa-layer-group"></i>
-                        <span>Administrative Layers</span>
+                        <span>Administrative Layer</span>
                     </div>
                     <div class="control-group">
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-province" checked>
+                            <input type="radio" name="admin-layer" value="province" checked>
                             <span class="control-indicator province-indicator"></span>
                             <span class="control-label">Provinces</span>
                         </label>
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-district" checked>
+                            <input type="radio" name="admin-layer" value="district">
                             <span class="control-indicator district-indicator"></span>
                             <span class="control-label">Districts</span>
                         </label>
                         <label class="toggle-control">
-                            <input type="checkbox" id="layer-municipality">
+                            <input type="radio" name="admin-layer" value="municipality">
                             <span class="control-indicator municipality-indicator"></span>
                             <span class="control-label">Municipalities</span>
                         </label>
+                    </div>
+                </section>
+
+                <!-- Dynamic Centroid Label Settings -->
+                <section class="panel-section">
+                    <div class="section-title">
+                        <i class="fa-solid fa-tag"></i>
+                        <span>Label Controls</span>
+                    </div>
+                    <div class="control-group">
+                        <label class="toggle-control">
+                            <input type="checkbox" id="toggle-labels" checked>
+                            <span class="control-label">Show Centroid Labels</span>
+                        </label>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="label-field-select" style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Label Attribute Field:</label>
+                        <select id="label-field-select" class="custom-select">
+                            <!-- Populated dynamically based on layer attributes -->
+                        </select>
                     </div>
                 </section>
 
@@ -136,19 +156,18 @@
         <main id="map-wrapper" class="map-wrapper">
             <div id="map"></div>
 
-            <!-- On-Map Floating Map Controls -->
+            <!-- On-Map Top-Right Controls & Upward North Arrow -->
             <div class="map-controls-top-right">
+                <!-- Upward Pointing North Arrow -->
+                <div class="north-arrow-container" title="North Direction (Upward)">
+                    <div class="north-arrow"><i class="fa-solid fa-arrow-up"></i><span>N</span></div>
+                </div>
                 <button id="btn-reset-view" class="map-btn" title="Reset View to Full Nepal Extent">
                     <i class="fa-solid fa-house"></i>
                 </button>
                 <button id="btn-locate" class="map-btn" title="Fit Bounds to Active Features">
                     <i class="fa-solid fa-expand"></i>
                 </button>
-            </div>
-
-            <!-- North Arrow Indicator -->
-            <div class="north-arrow-container" title="North Direction">
-                <div class="north-arrow">N</div>
             </div>
 
             <!-- Status Bar -->
