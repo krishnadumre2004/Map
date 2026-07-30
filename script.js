@@ -3,6 +3,7 @@
  * Modular Architecture using ES6+ standards and Leaflet.js
  */
 
+
 document.addEventListener('DOMContentLoaded', () => {
     const GISApp = {
         // App State
