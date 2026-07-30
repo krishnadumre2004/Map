@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nepal Web GIS - National Administrative Dashboard</title>
+    <title>Nepal Web GIS - Administrative Dashboard</title>
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Turf.js for Centroid and Spatial Calculations -->
+    <!-- Turf.js for Centroid Calculations -->
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -32,10 +32,10 @@
         </div>
     </div>
 
-    <!-- Main Container -->
+    <!-- App Container -->
     <div class="app-container">
         
-        <!-- Sidebar Navigation & Control Panel -->
+        <!-- Sidebar Navigation -->
         <aside id="sidebar" class="sidebar">
             <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle Sidebar">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -59,7 +59,7 @@
                 <section class="panel-section">
                     <div class="section-title">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>Search Spatial Entities</span>
+                        <span>Search Entities</span>
                     </div>
                     <div class="search-box">
                         <input type="text" id="search-input" placeholder="Search Province..." autocomplete="off">
@@ -93,11 +93,11 @@
                     </div>
                 </section>
 
-                <!-- Dynamic Centroid Label Settings -->
+                <!-- Label Controls -->
                 <section class="panel-section">
                     <div class="section-title">
                         <i class="fa-solid fa-tag"></i>
-                        <span>Label Controls</span>
+                        <span>Label Options</span>
                     </div>
                     <div class="control-group">
                         <label class="toggle-control">
@@ -106,9 +106,9 @@
                         </label>
                     </div>
                     <div style="margin-top: 10px;">
-                        <label for="label-field-select" style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Label Attribute Field:</label>
+                        <label for="label-field-select" style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Select Label Field:</label>
                         <select id="label-field-select" class="custom-select">
-                            <!-- Populated dynamically based on layer attributes -->
+                            <!-- Populated dynamically -->
                         </select>
                     </div>
                 </section>
@@ -124,23 +124,11 @@
                         <option value="cartoDark">CartoDB Dark Matter</option>
                         <option value="osm">OpenStreetMap Standard</option>
                         <option value="esriWorld">Esri World Imagery</option>
-                        <option value="openTopo">OpenTopoMap</option>
                     </select>
                 </section>
 
-                <!-- Dynamic Legend -->
-                <section class="panel-section">
-                    <div class="section-title">
-                        <i class="fa-solid fa-list-check"></i>
-                        <span>Map Legend</span>
-                    </div>
-                    <div id="legend-content" class="legend-box">
-                        <!-- Populated dynamically via script -->
-                    </div>
-                </section>
-
                 <!-- Info Panel -->
-                <section class="panel-section info-section" id="info-section">
+                <section class="panel-section info-section">
                     <div class="section-title">
                         <i class="fa-solid fa-circle-info"></i>
                         <span>Feature Attributes</span>
@@ -156,16 +144,18 @@
         <main id="map-wrapper" class="map-wrapper">
             <div id="map"></div>
 
-            <!-- On-Map Top-Right Controls & Upward North Arrow -->
+            <!-- Top-Right Controls & Upward Pointing North Arrow -->
             <div class="map-controls-top-right">
-                <!-- Upward Pointing North Arrow -->
-                <div class="north-arrow-container" title="North Direction (Upward)">
-                    <div class="north-arrow"><i class="fa-solid fa-arrow-up"></i><span>N</span></div>
+                <div class="north-arrow-container" title="North Direction">
+                    <div class="north-arrow">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        <span>N</span>
+                    </div>
                 </div>
-                <button id="btn-reset-view" class="map-btn" title="Reset View to Full Nepal Extent">
+                <button id="btn-reset-view" class="map-btn" title="Reset Map Extent">
                     <i class="fa-solid fa-house"></i>
                 </button>
-                <button id="btn-locate" class="map-btn" title="Fit Bounds to Active Features">
+                <button id="btn-locate" class="map-btn" title="Fit Bounds">
                     <i class="fa-solid fa-expand"></i>
                 </button>
             </div>
@@ -179,7 +169,7 @@
     </div>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
